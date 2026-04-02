@@ -1,23 +1,62 @@
-Está muy bien. Es el skill más completo del set — orquesta `debugger`, `go-specialist`, y `test-writer` en un flujo coherente con disciplina de root cause.
+---
+name: bug-hunt
+description: Investigate and fix a bug with root-cause discipline. Use for regressions, crashes, broken UI state, unexpected runtime behavior, failing commands, or incorrect output.
+disable-model-invocation: true
+---
 
-**Lo que está muy bien:**
-- El flujo es correcto: explorar → diagnosticar → fixear → testear → validar
-- La separación Go vs non-Go en el step 3 es consistente con el ecosistema
-- `disable-model-invocation: true` correcto igual que `review-change`
-- Las reglas al final son exactamente las mismas que `debugger` — consistencia bien mantenida
+Investigate the bug systematically, identify the root cause, apply the smallest safe fix when confirmed, and add a regression test when appropriate.
 
-**Un solo gap:**
+## Workflow
 
-El step 3 asume que el fix ya fue aplicado por `debugger`, pero `debugger` podría no haber podido aplicarlo si el root cause no quedó confirmado. El flujo debería ser explícito en ese caso:
+1. Use `Explore` to locate the relevant code paths, related files, configs, and nearby tests.
+   - Focus on the code paths most likely related to the reported symptom.
+   - Include surrounding context only as needed.
 
-```markdown
+2. Use `debugger` to investigate:
+   - summarize the symptom
+   - form ranked hypotheses
+   - inspect evidence
+   - validate the root cause
+   - apply the smallest safe fix if the root cause is confirmed
+
 3. Add or update tests when the fix changes observable behavior:
    - Only proceed if the root cause was confirmed and the fix was applied.
    - For Go changes, use `go-specialist`
    - For TypeScript, JavaScript, React, Node.js, or Flutter changes, use `test-writer`
    - If the root cause could not be confirmed, skip this step and surface the open question in the final report.
-```
 
-Así el skill no intenta escribir tests sobre un fix que no existe todavía.
+4. Run relevant validation commands when useful:
+   - tests
+   - typechecks
+   - builds
+   - targeted commands that validate the fix
 
-El resto está listo. ¿Aplicamos ese ajuste?
+5. Return one concise final report.
+
+## Output format
+
+### Bug summary
+- What was broken
+- What should have happened
+
+### Root cause
+- Clear explanation of why the bug happened
+
+### Fix
+- What changed
+- Why this fix addresses the root cause
+
+### Validation
+- What was checked
+
+### Regression prevention
+- Test added or updated
+- Related area to watch if relevant
+
+## Rules
+
+- Do not jump straight to patching before the root cause is explained.
+- Prefer the smallest fix with the lowest blast radius.
+- Do not refactor unrelated code during a bug fix.
+- Add a regression test when the bug is meaningfully testable.
+- Keep the final output concise and concrete.
